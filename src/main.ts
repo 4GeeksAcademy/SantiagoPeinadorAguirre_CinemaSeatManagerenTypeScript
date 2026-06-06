@@ -1,33 +1,14 @@
 import "./style.css";
 
-// Tipos nucleares del modulo: estado de butaca, idioma y entidades del dominio.
-type SeatState = "available" | "occupied";
+// Tipos nucleares del modulo: idioma y entidades del dominio.
 type Language = "VOSE" | "Castellano";
 
-type Seat = {
-  id: string;
-  state: SeatState;
-};
+// Datos adicionales en estructura JSON-compatible, sin objetos personalizados.
+// Movie: [titulo, poster, genero, etiquetas, sinopsis, director, reparto, sala, sesionesVOSE, sesionesCastellano]
+type Movie = [string, string, string, string[], string, string, string[], number, string[], string[]];
 
-type Movie = {
-  title: string;
-  poster: string;
-  genre: string;
-  tags: string[];
-  synopsis: string;
-  director: string;
-  actors: string[];
-  room: number;
-  sessions: Record<Language, string[]>;
-};
-
-type Snack = {
-  id: string;
-  name: string;
-  image: string;
-  description: string;
-  price: number;
-};
+// Snack: [id, nombre, imagen, descripcion, precio]
+type Snack = [string, string, string, string, number];
 
 // Etiquetas visuales del flujo superior (wizard de compra).
 const STEP_LABELS = [
@@ -43,131 +24,103 @@ const STEP_LABELS = [
 const TICKET_PRICE = 11.2;
 const TAX_RATE = 0.21;
 
-// Cartelera principal de peliculas. Cada ficha incluye metadata de cine,
-// sala y sesiones separadas por idioma.
-const MOVIES: Movie[] = [
-  {
-    title: "Cartas al Mar",
-    poster: "/img_ref/MOVIES/CARTASL_AL_MAR.webp",
-    genre: "Drama romantico",
-    tags: ["Intimo", "Emotivo", "Nostalgico"],
-    synopsis:
-      "Una restauradora de cartas antiguas descubre una correspondencia perdida que la conecta con una historia de amor inacabada frente al mar Cantabrico.",
-    director: "Lucia Varela",
-    actors: ["Ines Cebrian", "Javier Montero", "Paula Requena"],
-    room: 2,
-    sessions: {
-      VOSE: ["16:10", "19:00", "21:40"],
-      Castellano: ["17:25", "20:15"]
-    }
-  },
-  {
-    title: "Eclipse de Titan",
-    poster: "/img_ref/MOVIES/ECLIPSE_DE_TITAN.webp",
-    genre: "Ciencia ficcion",
-    tags: ["Espacial", "Suspense", "Aventura"],
-    synopsis:
-      "Una tripulacion cientifica llega a Titan y detecta una senal imposible que podria reescribir el origen de la vida en el sistema solar.",
-    director: "Arturo Navas",
-    actors: ["Clara Duenas", "Mateo Vidal", "Izan Salvat"],
-    room: 5,
-    sessions: {
-      VOSE: ["15:50", "18:35", "21:20", "23:40"],
-      Castellano: ["16:40", "19:25", "22:10"]
-    }
-  },
-  {
-    title: "El Reino de Ceniza",
-    poster: "/img_ref/MOVIES/EL_REINO_DE_CENIZA.webp",
-    genre: "Fantasia epica",
-    tags: ["Magia", "Accion", "Aventura"],
-    synopsis:
-      "Una heredera desterrada cruza tierras arrasadas para reunir a tres clanes y enfrentarse al regente que gobierna mediante fuego y miedo.",
-    director: "Sergio Alaminos",
-    actors: ["Nora Beltran", "Adrian Funes", "Leire Rosales"],
-    room: 1,
-    sessions: {
-      VOSE: ["17:00", "20:00"],
-      Castellano: ["15:30", "18:30", "21:30"]
-    }
-  },
-  {
-    title: "La Casa del Silencio",
-    poster: "/img_ref/MOVIES/LA%20CASA%20DEL%20SILENCIO.webp",
-    genre: "Terror psicologico",
-    tags: ["Terror", "Misterio", "Thriller"],
-    synopsis:
-      "Una familia se muda a una mansion donde el sonido desaparece cada medianoche, mientras una presencia exige ser escuchada a traves del silencio.",
-    director: "Helena Cortes",
-    actors: ["Diego Ariza", "Marta Lozano", "Eric Mena"],
-    room: 4,
-    sessions: {
-      VOSE: ["19:10", "22:00"],
-      Castellano: ["18:00", "20:50", "23:20"]
-    }
-  },
-  {
-    title: "Robo en la Gran Via",
-    poster: "/img_ref/MOVIES/ROBO_EN_LA_GRAN_VIA.webp",
-    genre: "Comedia de atracos",
-    tags: ["Comedia", "Heist", "Urbano"],
-    synopsis:
-      "Un grupo de extras de cine planea el golpe perfecto durante un rodaje nocturno en Madrid, pero cada improvisacion complica mas el plan.",
-    director: "Pablo Escudero",
-    actors: ["Rocio Lara", "Alvaro Campos", "Sofia Naranjo"],
-    room: 3,
-    sessions: {
-      VOSE: ["16:20", "19:35"],
-      Castellano: ["17:10", "20:25", "22:45"]
-    }
-  }
-].sort((a, b) => a.title.localeCompare(b.title, "es"));
+// Cartelera principal en formato JSON-compatible.
+// Cada fila: [titulo, poster, genero, etiquetas, sinopsis, director, reparto, sala, sesionesVOSE, sesionesCastellano].
+const MOVIES = ([
+  [
+    "Cartas al Mar",
+    "/img_ref/MOVIES/CARTASL_AL_MAR.webp",
+    "Drama romantico",
+    ["Intimo", "Emotivo", "Nostalgico"],
+    "Una restauradora de cartas antiguas descubre una correspondencia perdida que la conecta con una historia de amor inacabada frente al mar Cantabrico.",
+    "Lucia Varela",
+    ["Ines Cebrian", "Javier Montero", "Paula Requena"],
+    2,
+    ["16:10", "19:00", "21:40"],
+    ["17:25", "20:15"]
+  ],
+  [
+    "Eclipse de Titan",
+    "/img_ref/MOVIES/ECLIPSE_DE_TITAN.webp",
+    "Ciencia ficcion",
+    ["Espacial", "Suspense", "Aventura"],
+    "Una tripulacion cientifica llega a Titan y detecta una senal imposible que podria reescribir el origen de la vida en el sistema solar.",
+    "Arturo Navas",
+    ["Clara Duenas", "Mateo Vidal", "Izan Salvat"],
+    5,
+    ["15:50", "18:35", "21:20", "23:40"],
+    ["16:40", "19:25", "22:10"]
+  ],
+  [
+    "El Reino de Ceniza",
+    "/img_ref/MOVIES/EL_REINO_DE_CENIZA.webp",
+    "Fantasia epica",
+    ["Magia", "Accion", "Aventura"],
+    "Una heredera desterrada cruza tierras arrasadas para reunir a tres clanes y enfrentarse al regente que gobierna mediante fuego y miedo.",
+    "Sergio Alaminos",
+    ["Nora Beltran", "Adrian Funes", "Leire Rosales"],
+    1,
+    ["17:00", "20:00"],
+    ["15:30", "18:30", "21:30"]
+  ],
+  [
+    "La Casa del Silencio",
+    "/img_ref/MOVIES/LA%20CASA%20DEL%20SILENCIO.webp",
+    "Terror psicologico",
+    ["Terror", "Misterio", "Thriller"],
+    "Una familia se muda a una mansion donde el sonido desaparece cada medianoche, mientras una presencia exige ser escuchada a traves del silencio.",
+    "Helena Cortes",
+    ["Diego Ariza", "Marta Lozano", "Eric Mena"],
+    4,
+    ["19:10", "22:00"],
+    ["18:00", "20:50", "23:20"]
+  ],
+  [
+    "Robo en la Gran Via",
+    "/img_ref/MOVIES/ROBO_EN_LA_GRAN_VIA.webp",
+    "Comedia de atracos",
+    ["Comedia", "Heist", "Urbano"],
+    "Un grupo de extras de cine planea el golpe perfecto durante un rodaje nocturno en Madrid, pero cada improvisacion complica mas el plan.",
+    "Pablo Escudero",
+    ["Rocio Lara", "Alvaro Campos", "Sofia Naranjo"],
+    3,
+    ["16:20", "19:35"],
+    ["17:10", "20:25", "22:45"]
+  ]
+] as Movie[]).sort((a, b) => movieTitle(a).localeCompare(movieTitle(b), "es"));
 
-// Catalogo de tienda (menus de palomitas y golosinas) con precio unitario.
-const SNACKS: Snack[] = [
-  {
-    id: "clasico",
-    name: "Combo Clasico",
-    image: "/img_ref/MENUS/COMBO_CLASICO.webp",
-    description: "Palomitas medianas + bebida + gominolas.",
-    price: 8.5
-  },
-  {
-    id: "dulce",
-    name: "Combo Dulce",
-    image: "/img_ref/MENUS/COMBO_DULCE.webp",
-    description: "Palomitas dulces + chocolatinas + refresco.",
-    price: 9.2
-  },
-  {
-    id: "familiar",
-    name: "Combo Familiar",
-    image: "/img_ref/MENUS/COMBO_FAMILIAR.webp",
-    description: "Cubo grande de palomitas + 2 bebidas + surtido.",
-    price: 14.9
-  },
-  {
-    id: "nachos",
-    name: "Combo Nachos",
-    image: "/img_ref/MENUS/COMBO_NACHOS.webp",
-    description: "Nachos con cheddar + palomitas + bebida.",
-    price: 10.8
-  },
-  {
-    id: "pareja",
-    name: "Combo Pareja",
-    image: "/img_ref/MENUS/COMBO_PAREJA.webp",
-    description: "Palomitas grandes + 2 bebidas + golosinas.",
-    price: 12.4
-  }
-];
+// Catalogo de tienda en formato JSON-compatible.
+// Cada fila: [id, nombre, imagen, descripcion, precio].
+const SNACKS = [
+  ["clasico", "Combo Clasico", "/img_ref/MENUS/COMBO_CLASICO.webp", "Palomitas medianas + bebida + gominolas.", 8.5],
+  ["dulce", "Combo Dulce", "/img_ref/MENUS/COMBO_DULCE.webp", "Palomitas dulces + chocolatinas + refresco.", 9.2],
+  ["familiar", "Combo Familiar", "/img_ref/MENUS/COMBO_FAMILIAR.webp", "Cubo grande de palomitas + 2 bebidas + surtido.", 14.9],
+  ["nachos", "Combo Nachos", "/img_ref/MENUS/COMBO_NACHOS.webp", "Nachos con cheddar + palomitas + bebida.", 10.8],
+  ["pareja", "Combo Pareja", "/img_ref/MENUS/COMBO_PAREJA.webp", "Palomitas grandes + 2 bebidas + golosinas.", 12.4]
+] as Snack[];
+
+function movieTitle(movie: Movie): string { return movie[0]; }
+function moviePoster(movie: Movie): string { return movie[1]; }
+function movieGenre(movie: Movie): string { return movie[2]; }
+function movieTags(movie: Movie): string[] { return movie[3]; }
+function movieSynopsis(movie: Movie): string { return movie[4]; }
+function movieDirector(movie: Movie): string { return movie[5]; }
+function movieActors(movie: Movie): string[] { return movie[6]; }
+function movieRoom(movie: Movie): number { return movie[7]; }
+function movieSessions(movie: Movie, language: Language): string[] { return language === "VOSE" ? movie[8] : movie[9]; }
+
+function snackId(snack: Snack): string { return snack[0]; }
+function snackName(snack: Snack): string { return snack[1]; }
+function snackImage(snack: Snack): string { return snack[2]; }
+function snackDescription(snack: Snack): string { return snack[3]; }
+function snackPrice(snack: Snack): number { return snack[4]; }
 
 // Geometria base de la sala.
 const ROWS = 8;
 const COLS = 10;
 
 // Asientos ocupados al iniciar la app (estado simulado inicial).
-const OCCUPIED_SEATS = new Set(["C1", "D1", "F2", "B3", "I3", "E4", "H5", "A6", "D7", "G8"]);
+const OCCUPIED_SEATS = ["C1", "D1", "F2", "B3", "I3", "E4", "H5", "A6", "D7", "G8"];
 
 // Estado vivo de la experiencia de compra.
 // Aqui se almacenan elecciones de usuario para navegar entre pasos.
@@ -175,17 +128,18 @@ let currentStep = 1;
 let selectedMovie: Movie | null = null;
 let selectedLanguage: Language | "" = "";
 let selectedTime = "";
-let selectedSeats = new Set<string>();
-let selectedSnacks = new Map<string, number>();
+let selectedSnackQuantities: number[] = Array.from({ length: SNACKS.length }, () => 0);
 let receiptEmail = "";
+let reservationSeatsJson = "[]";
 
-// Crea una matriz de asientos 8x10 donde 0 = libre y 1 = ocupado.
-function initializeSeatMatrix(rows: number, cols: number, occupiedSeatIds: Set<string>): number[][] {
+// Crea una matriz de asientos 8x10.
+// Codigos de la matriz: 0 = libre, 1 = comprado/ocupado, 2 = seleccionado temporalmente.
+function initializeSeatMatrix(rows: number, cols: number, occupiedSeatIds: string[]): number[][] {
   const matrix = Array.from({ length: rows }, () => Array.from({ length: cols }, () => 0));
   occupiedSeatIds.forEach((seatId) => {
     const position = getSeatPositionFromId(seatId);
     if (position) {
-      matrix[position.row][position.col] = 1;
+      matrix[position[0]][position[1]] = 1;
     }
   });
   return matrix;
@@ -197,8 +151,8 @@ function seatIdFromPosition(row: number, col: number): string {
   return `${String.fromCharCode(65 + col)}${row + 1}`;
 }
 
-// Convierte un identificador de asiento (A1..J8) en coordenadas de matriz.
-function getSeatPositionFromId(seatId: string): { row: number; col: number } | null {
+// Convierte un identificador de asiento (A1..J8) en coordenadas [fila, columna].
+function getSeatPositionFromId(seatId: string): [number, number] | null {
   const match = /^([A-J])(8|[1-7])$/.exec(seatId);
   if (!match) {
     return null;
@@ -208,64 +162,88 @@ function getSeatPositionFromId(seatId: string): { row: number; col: number } | n
   if (row < 0 || row >= ROWS || col < 0 || col >= COLS) {
     return null;
   }
-  return { row, col };
+  return [row, col];
 }
 
-// Muestra en consola la sala usando X para ocupado y L para libre.
+// Devuelve los identificadores de los asientos seleccionados leyendo solo la matriz 2D.
+function getSelectedSeatIds(matrix: number[][]): string[] {
+  const seats: string[] = [];
+  for (let row = 0; row < ROWS; row += 1) {
+    for (let col = 0; col < COLS; col += 1) {
+      if (matrix[row][col] === 2) {
+        seats.push(seatIdFromPosition(row, col));
+      }
+    }
+  }
+  return seats;
+}
+
+// Limpia la seleccion temporal leyendo solo la matriz 2D.
+function clearSelectedSeats(matrix: number[][]): void {
+  for (let row = 0; row < ROWS; row += 1) {
+    for (let col = 0; col < COLS; col += 1) {
+      if (matrix[row][col] === 2) {
+        matrix[row][col] = 0;
+      }
+    }
+  }
+}
+
+// Muestra en consola la sala usando X para comprado, S para seleccionado y L para libre.
 // Encabezado: columnas A-J. Filas: 1-8.
 function printSeatMatrix(matrix: number[][]): void {
   const header = ["   ", ...Array.from({ length: COLS }, (_, i) => String.fromCharCode(65 + i).padStart(2, " "))].join(" ");
   console.log(header);
   matrix.forEach((rowValues, rowIndex) => {
     const label = String(rowIndex + 1).padStart(2, " ");
-    const rowText = rowValues.map((value) => (value === 1 ? " X" : " L")).join(" ");
+    const rowText = rowValues.map((value) => (value === 1 ? " X" : value === 2 ? " S" : " L")).join(" ");
     console.log(`${label}  ${rowText}`);
   });
 }
 
 // Reserva un asiento por fila y columna con validacion y mensaje claro de resultado.
-function reserveSeat(matrix: number[][], row: number, col: number): { success: boolean; message: string } {
+function reserveSeat(matrix: number[][], row: number, col: number): string {
   if (row < 0 || row >= ROWS || col < 0 || col >= COLS) {
-    return { success: false, message: "Reserva fallida: posicion fuera de rango." };
+    return "Reserva fallida: posicion fuera de rango.";
   }
   if (matrix[row][col] === 1) {
-    return { success: false, message: `Reserva fallida: el asiento ${seatIdFromPosition(row, col)} ya esta ocupado.` };
+    return `Reserva fallida: el asiento ${seatIdFromPosition(row, col)} ya esta ocupado.`;
   }
   matrix[row][col] = 1;
-  return { success: true, message: `Reserva confirmada: asiento ${seatIdFromPosition(row, col)}.` };
+  return `Reserva confirmada: asiento ${seatIdFromPosition(row, col)}.`;
 }
 
-// Cuenta asientos ocupados y libres de toda la sala.
-function countSeats(matrix: number[][]): { occupied: number; available: number } {
+// Cuenta asientos ocupados, libres y seleccionados de toda la sala.
+function countSeats(matrix: number[][]): [number, number, number] {
   let occupied = 0;
+  let available = 0;
+  let selected = 0;
   matrix.forEach((rowValues) => {
     rowValues.forEach((value) => {
       if (value === 1) {
         occupied += 1;
+      } else if (value === 2) {
+        selected += 1;
+      } else {
+        available += 1;
       }
     });
   });
-  return { occupied, available: ROWS * COLS - occupied };
+  return [occupied, available, selected];
 }
 
 // Busca el primer par de asientos libres contiguos horizontalmente.
-function findFirstAdjacentFreeSeats(
-  matrix: number[][]
-): { found: true; seats: [string, string]; message: string } | { found: false; message: string } {
+function findFirstAdjacentFreeSeats(matrix: number[][]): string {
   for (let row = 0; row < ROWS; row += 1) {
     for (let col = 0; col < COLS - 1; col += 1) {
       if (matrix[row][col] === 0 && matrix[row][col + 1] === 0) {
         const left = seatIdFromPosition(row, col);
         const right = seatIdFromPosition(row, col + 1);
-        return {
-          found: true,
-          seats: [left, right],
-          message: `Asientos contiguos encontrados: ${left} y ${right}.`
-        };
+        return `Asientos contiguos encontrados: ${left} y ${right}.`;
       }
     }
   }
-  return { found: false, message: "No hay asientos contiguos disponibles." };
+  return "No hay asientos contiguos disponibles.";
 }
 
 const seatMatrix = initializeSeatMatrix(ROWS, COLS, OCCUPIED_SEATS);
@@ -325,12 +303,12 @@ function formatEuro(value: number): string {
 
 // Calcula el subtotal de entradas segun cantidad de asientos seleccionados.
 function getSeatSubtotal(): number {
-  return selectedSeats.size * TICKET_PRICE;
+  return getSelectedSeatIds(seatMatrix).length * TICKET_PRICE;
 }
 
 // Calcula el subtotal de tienda multiplicando precio por cantidad de cada combo.
 function getSnacksSubtotal(): number {
-  return SNACKS.reduce((total, snack) => total + snack.price * (selectedSnacks.get(snack.id) ?? 0), 0);
+  return SNACKS.reduce((total, snack, index) => total + snackPrice(snack) * selectedSnackQuantities[index], 0);
 }
 
 // Suma subtotales de entradas y tienda antes de impuestos.
@@ -355,7 +333,7 @@ function isStep1Complete(): boolean {
 
 // Valida que el paso 2 tenga al menos un asiento seleccionado.
 function isStep2Complete(): boolean {
-  return selectedSeats.size > 0;
+  return getSelectedSeatIds(seatMatrix).length > 0;
 }
 
 // Determina hasta que paso puede avanzar el usuario segun el estado actual.
@@ -450,8 +428,8 @@ function setStep(step: number): void {
 // Genera botones de sesion para una pelicula e idioma concretos.
 // Cada boton arrastra metadatos para que un solo listener maneje la seleccion.
 function getSessionButtons(movie: Movie, language: Language): string {
-  return movie.sessions[language].map((time) => {
-    const isActive = selectedMovie?.title === movie.title && selectedLanguage === language && selectedTime === time;
+  return movieSessions(movie, language).map((time) => {
+    const isActive = selectedMovie ? movieTitle(selectedMovie) === movieTitle(movie) : false && selectedLanguage === language && selectedTime === time;
     const style = isActive
       ? "border-sky-500 bg-sky-600 text-white"
       : "border-sky-200 bg-white text-sky-700 hover:border-sky-400";
@@ -459,7 +437,7 @@ function getSessionButtons(movie: Movie, language: Language): string {
       <button
         type="button"
         data-action="select-session"
-        data-movie-title="${movie.title}"
+        data-movie-title="${movieTitle(movie)}"
         data-language="${language}"
         data-time="${time}"
         class="inline-flex items-center rounded-lg border px-2.5 py-1 text-[11px] font-medium transition ${style}"
@@ -474,32 +452,32 @@ function getSessionButtons(movie: Movie, language: Language): string {
 // Cada ficha incluye poster, metadata, etiquetas y sesiones VOSE/Castellano integradas.
 function renderMovieCatalog(): void {
   movieCatalog.innerHTML = MOVIES.map((movie) => {
-    const isSelectedMovie = selectedMovie?.title === movie.title;
+    const isSelectedMovie = selectedMovie ? movieTitle(selectedMovie) === movieTitle(movie) : false;
     const cardClass = isSelectedMovie
       ? "border-sky-500 bg-sky-100/80 ring-2 ring-sky-300"
       : "border-sky-200 bg-white";
 
-    const tags = movie.tags
+    const tags = movieTags(movie)
       .map((tag) => `<span class="rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[11px] text-sky-700">${tag}</span>`)
       .join(" ");
 
     return `
       <article class="rounded-xl border p-3 transition ${cardClass}">
-        <img src="${movie.poster}" alt="Poster de ${movie.title}" class="aspect-[2/3] w-full rounded-lg object-cover" />
+        <img src="${moviePoster(movie)}" alt="Poster de ${movieTitle(movie)}" class="aspect-[2/3] w-full rounded-lg object-cover" />
         <div class="mt-3 space-y-2">
           <div class="flex items-start justify-between gap-2">
-            <p class="text-sm font-semibold text-slate-900">${movie.title}</p>
-            <span class="rounded-full bg-sky-600 px-2 py-0.5 text-[10px] font-semibold text-white">${movie.genre}</span>
+            <p class="text-sm font-semibold text-slate-900">${movieTitle(movie)}</p>
+            <span class="rounded-full bg-sky-600 px-2 py-0.5 text-[10px] font-semibold text-white">${movieGenre(movie)}</span>
           </div>
           <div class="flex flex-wrap gap-1">${tags}</div>
-          <p class="text-xs text-slate-600">${movie.synopsis}</p>
-          <p class="text-xs text-slate-700"><span class="font-semibold">Director:</span> ${movie.director}</p>
-          <p class="text-xs text-slate-700"><span class="font-semibold">Reparto:</span> ${movie.actors.join(", ")}</p>
-          <p class="text-xs font-semibold text-sky-700">Sala ${movie.room}</p>
+          <p class="text-xs text-slate-600">${movieSynopsis(movie)}</p>
+          <p class="text-xs text-slate-700"><span class="font-semibold">Director:</span> ${movieDirector(movie)}</p>
+          <p class="text-xs text-slate-700"><span class="font-semibold">Reparto:</span> ${movieActors(movie).join(", ")}</p>
+          <p class="text-xs font-semibold text-sky-700">Sala ${movieRoom(movie)}</p>
           <button
             type="button"
             data-action="select-movie"
-            data-movie-title="${movie.title}"
+            data-movie-title="${movieTitle(movie)}"
             class="inline-flex items-center rounded-lg border border-sky-300 bg-white px-3 py-1.5 text-xs font-medium text-sky-700 transition hover:bg-sky-50"
           >
             Seleccionar pelicula
@@ -528,65 +506,55 @@ function renderSelectionSummary(): void {
   const languageLabel = selectedLanguage || "Pendiente";
   const timeLabel = selectedTime || "Pendiente";
   selectionSummary.innerHTML = `
-    <p><span class="font-semibold text-sky-700">Pelicula:</span> ${selectedMovie.title}</p>
-    <p><span class="font-semibold text-sky-700">Genero:</span> ${selectedMovie.genre}</p>
+    <p><span class="font-semibold text-sky-700">Pelicula:</span> ${movieTitle(selectedMovie)}</p>
+    <p><span class="font-semibold text-sky-700">Genero:</span> ${movieGenre(selectedMovie)}</p>
     <p><span class="font-semibold text-sky-700">Idioma:</span> ${languageLabel}</p>
     <p><span class="font-semibold text-sky-700">Horario:</span> ${timeLabel}</p>
-    <p><span class="font-semibold text-sky-700">Sala:</span> ${selectedMovie.room}</p>
+    <p><span class="font-semibold text-sky-700">Sala:</span> ${movieRoom(selectedMovie)}</p>
   `;
 }
 
 // Refleja en el paso 2 la sala asignada a la pelicula elegida.
 function updateRoomInfo(): void {
-  roomInfo.textContent = selectedMovie ? `Sala asignada: ${selectedMovie.room}` : "Sala asignada: -";
+  roomInfo.textContent = selectedMovie ? `Sala asignada: ${movieRoom(selectedMovie)}` : "Sala asignada: -";
 }
 
 // Muestra resumen de asientos seleccionados y metricas globales de ocupacion.
 function renderSeatSummary(): void {
-  const totals = countSeats(seatMatrix);
-  const selectedCount = selectedSeats.size;
-  const availableCount = Math.max(0, totals.available - selectedCount);
+  const [occupied, available, selectedCount] = countSeats(seatMatrix);
 
-  if (selectedSeats.size === 0) {
-    seatSummary.textContent = `Asientos -> ✓ Disponibles: ${totals.available} | ✕ Comprados: ${totals.occupied} | ○ Seleccionados: 0`;
+  if (selectedCount === 0) {
+    seatSummary.textContent = `Asientos -> ✓ Disponibles: ${available} | ✕ Comprados: ${occupied} | ○ Seleccionados: 0`;
     return;
   }
 
-  seatSummary.textContent = `Asientos -> ✓ Disponibles: ${availableCount} | ✕ Comprados: ${totals.occupied} | ○ Seleccionados: ${selectedCount} | Entradas: ${formatEuro(getSeatSubtotal())}`;
+  seatSummary.textContent = `Asientos -> ✓ Disponibles: ${available} | ✕ Comprados: ${occupied} | ○ Seleccionados: ${selectedCount} | Entradas: ${formatEuro(getSeatSubtotal())}`;
 }
 
-// Devuelve clases visuales segun estado del asiento (ocupado, seleccionado, libre).
-function seatClass(seat: Seat): string {
-  if (seat.state === "occupied") {
+// Devuelve clases visuales segun el codigo guardado en la matriz 2D.
+function seatClass(state: number): string {
+  if (state === 1) {
     return "cursor-not-allowed border-red-700 bg-red-600 text-white";
-  } else if (selectedSeats.has(seat.id)) {
+  } else if (state === 2) {
     return "border-emerald-700 bg-emerald-600 text-white";
   } else {
     return "border-slate-500 bg-slate-300 text-slate-900 hover:brightness-110";
   }
 }
 
-// Devuelve el simbolo visible de la butaca segun estado solicitado por negocio.
-function seatSymbol(seat: Seat): string {
-  if (seat.state === "occupied") {
+// Devuelve el simbolo visible de la butaca segun el codigo guardado en la matriz 2D.
+function seatSymbol(state: number): string {
+  if (state === 1) {
     return "✕";
   }
-  if (selectedSeats.has(seat.id)) {
+  if (state === 2) {
     return "○";
   }
   return "✓";
 }
 
-// Pinta la rejilla completa de asientos leyendo la matriz 8x10 actual.
-// Se mantiene sincronizada con reservas existentes y seleccion temporal del usuario.
+// Pinta la rejilla completa de asientos leyendo directamente la matriz 8x10 actual.
 function renderSeatGrid(): void {
-  const seats: Seat[] = [];
-  for (let row = 0; row < ROWS; row += 1) {
-    for (let col = 0; col < COLS; col += 1) {
-      const id = seatIdFromPosition(row, col);
-      seats.push({ id, state: seatMatrix[row][col] === 1 ? "occupied" : "available" });
-    }
-  }
 
   const rowInsetClasses = [
     "px-8 sm:px-12",
@@ -612,9 +580,10 @@ function renderSeatGrid(): void {
 
   const rowsHtml = Array.from({ length: ROWS }, (_, row) => {
     const rowItems = Array.from({ length: COLS }, (_, col) => {
-      const seat = seats[row * COLS + col];
-      const disabled = seat.state === "occupied" ? "disabled" : "";
-      return `<button ${disabled} data-seat-id="${seat.id}" title="${seat.id}" aria-label="Asiento ${seat.id}" class="inline-flex h-7 w-7 items-center justify-center rounded border text-sm font-semibold transition sm:h-8 sm:w-8 ${seatClass(seat)}">${seatSymbol(seat)}</button>`;
+      const seatId = seatIdFromPosition(row, col);
+      const seatState = seatMatrix[row][col];
+      const disabled = seatState === 1 ? "disabled" : "";
+      return `<button ${disabled} data-seat-id="${seatId}" title="${seatId}" aria-label="Asiento ${seatId}" class="inline-flex h-7 w-7 items-center justify-center rounded border text-sm font-semibold transition sm:h-8 sm:w-8 ${seatClass(seatState)}">${seatSymbol(seatState)}</button>`;
     });
 
     return `
@@ -646,18 +615,18 @@ function renderSeatGrid(): void {
 
 // Renderiza el catalogo de tienda con controles +/- y cantidades por producto.
 function renderSnackCatalog(): void {
-  snackCatalog.innerHTML = SNACKS.map((snack) => {
-    const qty = selectedSnacks.get(snack.id) ?? 0;
+  snackCatalog.innerHTML = SNACKS.map((snack, index) => {
+    const qty = selectedSnackQuantities[index];
     return `
       <article class="rounded-xl border border-sky-200 bg-white p-3">
-        <img src="${snack.image}" alt="${snack.name}" class="h-28 w-full rounded-lg object-cover" />
-        <p class="mt-2 text-sm font-semibold text-slate-900">${snack.name}</p>
-        <p class="mt-1 text-xs text-slate-600">${snack.description}</p>
-        <p class="mt-1 text-xs font-semibold text-sky-700">${formatEuro(snack.price)}</p>
+        <img src="${snackImage(snack)}" alt="${snackName(snack)}" class="h-28 w-full rounded-lg object-cover" />
+        <p class="mt-2 text-sm font-semibold text-slate-900">${snackName(snack)}</p>
+        <p class="mt-1 text-xs text-slate-600">${snackDescription(snack)}</p>
+        <p class="mt-1 text-xs font-semibold text-sky-700">${formatEuro(snackPrice(snack))}</p>
         <div class="mt-2 flex items-center gap-2">
-          <button type="button" data-action="dec-snack" data-snack-id="${snack.id}" class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-sky-300 bg-white text-sm font-semibold text-sky-700">-</button>
+          <button type="button" data-action="dec-snack" data-snack-index="${index}" class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-sky-300 bg-white text-sm font-semibold text-sky-700">-</button>
           <span class="min-w-6 text-center text-sm font-semibold text-slate-700">${qty}</span>
-          <button type="button" data-action="inc-snack" data-snack-id="${snack.id}" class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-sky-300 bg-white text-sm font-semibold text-sky-700">+</button>
+          <button type="button" data-action="inc-snack" data-snack-index="${index}" class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-sky-300 bg-white text-sm font-semibold text-sky-700">+</button>
         </div>
       </article>
     `;
@@ -666,8 +635,8 @@ function renderSnackCatalog(): void {
 
 // Construye el checkout dinamico: entradas, tienda, subtotal, IVA y total final.
 function renderCheckoutSummary(): void {
-  const seatCount = selectedSeats.size;
-  const snacksCount = [...selectedSnacks.values()].reduce((sum, qty) => sum + qty, 0);
+  const seatCount = getSelectedSeatIds(seatMatrix).length;
+  const snacksCount = selectedSnackQuantities.reduce((sum, qty) => sum + qty, 0);
   const subtotal = getSubtotal();
   const tax = getTaxAmount();
   const total = getTotalWithTax();
@@ -684,12 +653,12 @@ function renderCheckoutSummary(): void {
 // Genera lineas de recibo para productos de tienda con cantidad > 0.
 function getSnackReceiptLines(): string {
   const lines = SNACKS
-    .map((snack) => {
-      const qty = selectedSnacks.get(snack.id) ?? 0;
+    .map((snack, index) => {
+      const qty = selectedSnackQuantities[index];
       if (qty === 0) {
         return "";
       }
-      return `<p><span class=\"text-sky-700\">${snack.name}:</span> ${qty} x ${formatEuro(snack.price)}</p>`;
+      return `<p><span class=\"text-sky-700\">${snackName(snack)}:</span> ${qty} x ${formatEuro(snackPrice(snack))}</p>`;
     })
     .filter((line) => line !== "");
 
@@ -704,13 +673,13 @@ function updateConfirmation(): void {
     return;
   }
 
-  const seats = [...selectedSeats].sort((a, b) => a.localeCompare(b));
+  const seats = (JSON.parse(reservationSeatsJson) as string[]).sort((a, b) => a.localeCompare(b));
   confirmationTitle.textContent = "Compra confirmada. Recibo enviado correctamente.";
   confirmationDetails.innerHTML = `
-    <p><span class="text-sky-700">Pelicula:</span> ${selectedMovie.title}</p>
+    <p><span class="text-sky-700">Pelicula:</span> ${movieTitle(selectedMovie)}</p>
     <p><span class="text-sky-700">Idioma:</span> ${selectedLanguage}</p>
     <p><span class="text-sky-700">Horario:</span> ${selectedTime}</p>
-    <p><span class="text-sky-700">Sala:</span> ${selectedMovie.room}</p>
+    <p><span class="text-sky-700">Sala:</span> ${movieRoom(selectedMovie)}</p>
     <p><span class="text-sky-700">Asientos:</span> ${seats.join(", ")}</p>
     ${getSnackReceiptLines()}
     <p><span class="text-sky-700">Subtotal:</span> ${formatEuro(getSubtotal())}</p>
@@ -735,9 +704,10 @@ function hidePaymentError(): void {
 // Reinicia estado de pedido cuando cambia pelicula/sesion para evitar incoherencias.
 // Limpia asientos, tienda y confirmacion previa.
 function resetOrderProgress(): void {
-  selectedSeats.clear();
-  selectedSnacks = new Map<string, number>();
+  clearSelectedSeats(seatMatrix);
+  selectedSnackQuantities = Array.from({ length: SNACKS.length }, () => 0);
   receiptEmail = "";
+  reservationSeatsJson = "[]";
   renderSeatGrid();
   renderSeatSummary();
   renderSnackCatalog();
@@ -778,13 +748,13 @@ movieCatalog.addEventListener("click", (event) => {
 
   const action = button.dataset.action;
   const title = button.dataset.movieTitle;
-  const movie = MOVIES.find((item) => item.title === title);
+  const movie = MOVIES.find((item) => movieTitle(item) === title);
   if (!movie) {
     return;
   }
 
   if (action === "select-movie") {
-    const changed = selectedMovie?.title !== movie.title;
+    const changed = selectedMovie ? movieTitle(selectedMovie) !== movieTitle(movie) : true;
     selectedMovie = movie;
     selectedLanguage = "";
     selectedTime = "";
@@ -799,7 +769,7 @@ movieCatalog.addEventListener("click", (event) => {
     const language = button.dataset.language as Language;
     const time = button.dataset.time ?? "";
     const changed =
-      selectedMovie?.title !== movie.title ||
+      selectedMovie ? movieTitle(selectedMovie) !== movieTitle(movie) : true ||
       selectedLanguage !== language ||
       selectedTime !== time;
 
@@ -853,15 +823,13 @@ seatGrid.addEventListener("click", (event) => {
   }
 
   const seatPosition = getSeatPositionFromId(seatId);
-  if (!seatPosition || seatMatrix[seatPosition.row][seatPosition.col] === 1) {
+  if (!seatPosition || seatMatrix[seatPosition[0]][seatPosition[1]] === 1) {
     return;
   }
 
-  if (selectedSeats.has(seatId)) {
-    selectedSeats.delete(seatId);
-  } else {
-    selectedSeats.add(seatId);
-  }
+  const row = seatPosition[0];
+  const col = seatPosition[1];
+  seatMatrix[row][col] = seatMatrix[row][col] === 2 ? 0 : 2;
 
   renderSeatGrid();
   renderSeatSummary();
@@ -883,8 +851,7 @@ toStep3Btn.addEventListener("click", () => {
     return;
   }
 
-  const contiguous = findFirstAdjacentFreeSeats(seatMatrix);
-  console.info(contiguous.message);
+  console.info(findFirstAdjacentFreeSeats(seatMatrix));
   setStep(3);
   stepCards[2].scrollIntoView({ behavior: "smooth", block: "center" });
 });
@@ -897,24 +864,22 @@ snackCatalog.addEventListener("click", (event) => {
     return;
   }
 
-  const button = target.closest<HTMLButtonElement>("button[data-action][data-snack-id]");
+  const button = target.closest<HTMLButtonElement>("button[data-action][data-snack-index]");
   if (!button) {
     return;
   }
 
-  const snackId = button.dataset.snackId ?? "";
+  const snackIndex = Number(button.dataset.snackIndex ?? "-1");
   const action = button.dataset.action;
-  const currentQty = selectedSnacks.get(snackId) ?? 0;
+  if (snackIndex < 0 || snackIndex >= SNACKS.length) {
+    return;
+  }
+  const currentQty = selectedSnackQuantities[snackIndex];
 
   if (action === "inc-snack") {
-    selectedSnacks.set(snackId, currentQty + 1);
+    selectedSnackQuantities[snackIndex] = currentQty + 1;
   } else if (action === "dec-snack") {
-    const nextQty = Math.max(0, currentQty - 1);
-    if (nextQty === 0) {
-      selectedSnacks.delete(snackId);
-    } else {
-      selectedSnacks.set(snackId, nextQty);
-    }
+    selectedSnackQuantities[snackIndex] = Math.max(0, currentQty - 1);
   } else {
     return;
   }
@@ -994,24 +959,26 @@ paymentForm.addEventListener("submit", (event) => {
     return;
   }
 
+  const selectedSeatIds = getSelectedSeatIds(seatMatrix);
   const reserveMessages: string[] = [];
-  for (const seatId of selectedSeats) {
+  for (const seatId of selectedSeatIds) {
     const position = getSeatPositionFromId(seatId);
     if (!position) {
       showPaymentError(`Error al reservar el asiento ${seatId}.`);
       return;
     }
-    const reservation = reserveSeat(seatMatrix, position.row, position.col);
-    reserveMessages.push(reservation.message);
-    if (!reservation.success) {
-      showPaymentError(reservation.message);
+    const reservationMessage = reserveSeat(seatMatrix, position[0], position[1]);
+    reserveMessages.push(reservationMessage);
+    if (!reservationMessage.startsWith("Reserva confirmada")) {
+      showPaymentError(reservationMessage);
       return;
     }
   }
 
+  reservationSeatsJson = JSON.stringify(selectedSeatIds);
   reserveMessages.forEach((message) => console.info(message));
-  const totals = countSeats(seatMatrix);
-  console.info(`Estado de sala -> ocupados: ${totals.occupied}, libres: ${totals.available}.`);
+  const [occupied, available] = countSeats(seatMatrix);
+  console.info(`Estado de sala -> ocupados: ${occupied}, libres: ${available}.`);
   printSeatMatrix(seatMatrix);
 
   receiptEmail = email;
@@ -1043,5 +1010,5 @@ updateConfirmation();
 // Trazas iniciales de consola para soporte operativo del personal del cine.
 console.info("Estado inicial de la sala:");
 printSeatMatrix(seatMatrix);
-console.info(findFirstAdjacentFreeSeats(seatMatrix).message);
+console.info(findFirstAdjacentFreeSeats(seatMatrix));
 console.log("Matriz de asientos (array 2D):", seatMatrix);
